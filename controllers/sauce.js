@@ -58,23 +58,27 @@ exports.likeDislike= (req, res, next) => {
     const userId = req.auth.userId
     const likeAction = req.body.like
     const userLikeIndex = sauce.usersLiked.findIndex(id => id === userId)
-    if(userLikeIndex > -1){
-      if(likeAction == 0){
-        sauce.usersLiked.splice(userLikeIndex, 1)
-        sauce.likes --
-      }else{
-        return res.status(401).json({ message: "Not authorized" });
-      }
-    }
     const userDislikeIndex = sauce.usersDisliked.findIndex(id => id === userId)
-    if (userDislikeIndex  > -1){
-      if(likeAction == 0){
-        sauce.usersDisliked.splice(userDislikeIndex, 1)
-        sauce.dislikes --
-      }else{
+    if(likeAction==-1 && userDislikeIndex < 0){
+        sauce.usersDisliked.push(userId)
+        sauce.dislikes ++
+    }else if ( likeAction ==1 && userLikeIndex < 0){
+      sauce.usersLiked.push(userId)
+      sauce.likes ++
+    }else if ( likeAction ==0 && userLikeIndex >= 0){
+      sauce.usersLiked.splice(userLikeIndex, 1)
+        sauce.likes --
+    } else if ( likeAction == 0 && userDislikeIndex >= 0){
+      sauce.usersDisliked.splice(userLikeIndex, 1)
+      sauce.dislikes --
+    }else{
         return res.status(401).json({ message: "Not authorized" });
       }
-    }
+    
+      Sauce.updateOne({ _id: req.params.id }, sauce)
+      .then(() => res.status(200).json({ message: "Objet modifié !" }))
+      .catch((error) => res.status(404).json({ error }));
+    
         
     })
     .catch((error) => {
