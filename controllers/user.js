@@ -5,6 +5,9 @@ const User = require('../models/User'); //Importation du modèle user
 
 // Exportation fonction enregistrement de nouveaux utilisateurs
 exports.signup = ((req, res, next) =>{ // hachage du mot de passe (fonction asynchrone longue) avant enregistrement BD 
+    if(!req.body.password.match(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,16}$/)){
+        return res.status(400).json({message : 'Votre mot de passe doit contenir XXX'})
+    }
  bcrypt.hash(req.body.password, 10)//Déclaration fonction param corps de la requête passé par le frontEnd, salt combien de fois on execute l'algorithme de hachage
  .then(hash =>{ //Récupération du hash de mot de passe
     const user = new User ({ //avec modèle mongoose :création nouveau utilisateur
@@ -41,7 +44,7 @@ exports.login = (req, res, next) => {
                         token: jwt.sign( // Chiffrement nouveau token /Signature du token - Créer à partir du header (jwt), du payload et d'un secret
                             { userId: user._id }, // Payload : création d'un objet (userid correspond):données que l'on souhaite encodées dans notre token
                             process.env.JWT_SECRET, // Clef secrète : crypté token (chiffrement/déchiffrement) stockée dans dot.env par sécurité
-                            { expiresIn: '24h' } //Configuration durée de vie du token
+                            { expiresIn: '2h' } //Configuration durée de vie du token
                         )
                     });
                 })

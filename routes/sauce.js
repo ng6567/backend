@@ -13,8 +13,9 @@ const sauceCtrl = require('../controllers/sauce'); // Importation de Ctrl
 
 router.get('/', auth, sauceCtrl.getAllSauces); // Création d'un route get pour récupérer toutes les sauces 
 router.post('/', auth, multer, sauceCtrl.createSauce);// Création d'un route post pour la création de sauce méthode post
-router.get('/:id', auth, multer, sauceCtrl.getOneSauce);// Création d'un route get pour récupérer une sauce avec son param id 
+router.get('/:id', auth, sauceCtrl.getOneSauce);// Création d'un route get pour récupérer une sauce avec son param id 
 router.put('/:id', auth, multer, sauceCtrl.modifySauce);// Création d'un route put pour la modification de sauce à partir avec son param id 
 router.delete('/:id', auth, sauceCtrl.deleteSauce);// Création d'un route delete pour suppression de sauce à partir avec son param id 
-router.post('/:id/like', auth, multer, sauceCtrl.likeDislike);// Création d'une route post pour gérer les like et dislike
+router.post('/:id/like', auth, sauceCtrl.likeDislike);// Création d'une route post pour gérer les like et dislike
+
 module.exports = router; // Exportation du router - accès depuis les autres fichiers 

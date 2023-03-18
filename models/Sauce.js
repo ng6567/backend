@@ -1,6 +1,6 @@
 const mongoose = require('mongoose'); //Importation de mongoose
 const sauceSchema = mongoose.Schema({ //Création de schéma de données - Création champs : clef - objet - required = chanps requis
-  userId: { type: String, required: true }, // Pas nécessaire car id déja généré par notre base de données
+  userId: { type: String, required: true }, 
     name: { type: String, required: true },
     manufacturer: { type: String, required: true },
     description: { type: String, required: true },

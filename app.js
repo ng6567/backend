@@ -1,3 +1,4 @@
+const rateLimit = require('express-rate-limit')
 const express = require('express');//Importation d'express
 require('dotenv').config();
 const mongoose = require('mongoose'); // Importation Mogoose
@@ -8,6 +9,15 @@ const userRoutes = require('./routes/user'); // Importation de notre router pour
 
 const app = express(); // Création de notre application express
 
+const limiter = rateLimit({
+	windowMs: 15000 , // 15 secondes
+	max: 1000, // Limit each IP to 1000 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter)
 //Connection API à la base de données MongoDB
 mongoose.connect(`mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PWD}@cluster0.qcjcriv.mongodb.net/test?retryWrites=true&w=majority`, 
 { useNewUrlParser: true,
@@ -24,7 +34,7 @@ app.use((req, res, next) => { // Gérer CORS Accès de l'application à l'API = 
     next(); // Passage de l'execution au middleware suivant
   });
 
-  const bodyParser = require('body-parser');
+  
 // Enregistrement des routes pour le frontend
   app.use('/api/sauces', sauceRoutes);
   app.use('/api/auth', userRoutes);

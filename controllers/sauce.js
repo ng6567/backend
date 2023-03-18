@@ -14,7 +14,7 @@ exports.createSauce = (req, res, next) => {
     }`,
   });
   sauce
-    .save() //Enregistrement de l'objet sauce dans la base de données
+    .save() //Enregistrement de l'objet sauce dans la base de données avec la méthode Mongoose
     .then(() => {//Envoi de la réponse au frontend
       res.status(201).json({ message: "Objet enregistré !" });// Code 201 : Création de ressources réussie
     })
@@ -28,7 +28,7 @@ Vérification si l'utilisateur qui souhaite modifier et bien l'utilisateur d'ori
 Vérification remplacement d'image ou intégration d'une première image
 */
 exports.modifySauce = (req, res, next) => {
-  Sauce.findOne({ _id: req.params.id }) // Récupération de l'objet en BD
+  Sauce.findOne({ _id: req.params.id }) // Récupération de l'objet en BD avec la méthode Mongoose
     .then((sauce) => { 
       if (sauce.userId != req.auth.userId) {// Vérification droit utilisateur (userid BD correspond au userId token)
         res.status(401).json({ message: "Not authorized" });//Code erreur 401 : utilisateur non authentifié 
@@ -42,12 +42,12 @@ exports.modifySauce = (req, res, next) => {
           }`;
           const filename = sauce.imageUrl.split("/images/")[1]; //Suppression de l'ancienne image
           fs.unlink(`images/${filename}`, () => {
-            Sauce.updateOne({ _id: req.params.id }, sauceObject) // Méthode mongoose updateOne: mettre à jour avec nouvelle image : 1 arg objet à modifier (id param, 2 arg nouvelle objet)
+            Sauce.updateOne({ _id: req.params.id }, sauceObject) // Méthode mongoose updateOne: mettre à jour avec nouvelle image : 1 arg objet à modifier (id BD, 2 arg nouvelle objet)
               .then(() => res.status(200).json({ message: "Objet modifié !" }))//Envoi réponse code 200 ok , modification effectuée
               .catch((error) => res.status(404).json({ error }));//Code 404 : Page web introuvable, indisponible ou n'existe pas
           });
         } else{// Si ne contient pas d'image
-          Sauce.updateOne({ _id: req.params.id }, sauceObject)// Méthode mongoose updateOne: mettre à jour avec nouvelle image : 1 arg objet à modifier (id param, 2 arg nouvelle objet)
+          Sauce.updateOne({ _id: req.params.id }, sauceObject)// Méthode mongoose updateOne: mettre à jour avec nouvelle image : 1 arg objet à modifier (id BD, 2 arg nouvelle objet)
               .then(() => res.status(200).json({ message: "Objet modifié !" })) //Envoi réponse code 200 ok , modification effectuée
               .catch((error) => res.status(404).json({ error }));//Code 404 : Page web introuvable, indisponible ou n'existe pas
         }
@@ -111,7 +111,7 @@ exports.deleteSauce = (req, res, next) => {
       } else {
         const filename = sauce.imageUrl.split("/images/")[1];//Correspondance : Récupération du nom de fichier
         fs.unlink(`images/${filename}`, () => {// Supression du fichier
-          Sauce.deleteOne({ _id: req.params.id }) // Suppression dans la BD
+          Sauce.deleteOne({ _id: req.params.id }) // Suppression dans la BD référencé par l'id params avec la méthode Mongoose
             .then(() => {
               res.status(200).json({ message: "Objet supprimé !" });// Envoi réponse code 200 ok, suppresion de la source effectuée
             })
