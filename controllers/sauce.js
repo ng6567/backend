@@ -8,7 +8,7 @@ exports.createSauce = (req, res, next) => {
   delete sauceObject._userId;//Enlever le champs userId du corp de la requête renvoyé par le frontend = Générer automatiquement par MongoDB
   const sauce = new Sauce({//Création de l'objet
     ...sauceObject,// données transmises par le frontend (moins les deux champs supprimés)
-    userId: req.auth.userId, // Extraction du userId de l'objet requête grâce au middleware
+    userId: req.auth.userId, // Vérification de l'identité de l'utilisateur
     imageUrl: `${req.protocol}://${req.get("host")}/images/${ // Générer le nom de l'image : protocole + nom d'hote+ nom de fichier
       req.file.filename
     }`,
@@ -25,7 +25,7 @@ exports.createSauce = (req, res, next) => {
 
 /*Exportation de la fonction pour modifier les sauces
 Vérification si l'utilisateur qui souhaite modifier et bien l'utilisateur d'origine
-Vérification remplacement d'image ou intégration d'une première image
+Vérification remplacement d'image ou modification sans image
 */
 exports.modifySauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id }) // Récupération de l'objet en BD avec la méthode Mongoose
@@ -46,8 +46,8 @@ exports.modifySauce = (req, res, next) => {
               .then(() => res.status(200).json({ message: "Objet modifié !" }))//Envoi réponse code 200 ok , modification effectuée
               .catch((error) => res.status(404).json({ error }));//Code 404 : Page web introuvable, indisponible ou n'existe pas
           });
-        } else{// Si ne contient pas d'image
-          Sauce.updateOne({ _id: req.params.id }, sauceObject)// Méthode mongoose updateOne: mettre à jour avec nouvelle image : 1 arg objet à modifier (id BD, 2 arg nouvelle objet)
+        } else{// Si la modification ne concerne pas l'image
+          Sauce.updateOne({ _id: req.params.id }, sauceObject)// Méthode mongoose updateOne: mettre à jour : 1 arg objet à modifier (id BD, 2 arg nouvelle objet)
               .then(() => res.status(200).json({ message: "Objet modifié !" })) //Envoi réponse code 200 ok , modification effectuée
               .catch((error) => res.status(404).json({ error }));//Code 404 : Page web introuvable, indisponible ou n'existe pas
         }
