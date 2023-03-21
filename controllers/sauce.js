@@ -5,10 +5,10 @@ const fs = require("fs");//Importation module de suppression de fichier
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce); //Conversion en objet du corps de la requête
   delete sauceObject._id; //Enlever le champs id du corp de la requête renvoyé par le frontend = Générer automatiquement par MongoDB
-  delete sauceObject._userId;//Enlever le champs userId du corp de la requête renvoyé par le frontend = Générer automatiquement par MongoDB
+  delete sauceObject._userId;//Enlever le champs userId du corp de la requête renvoyé par le frontend = Utilisation du userid fournit par le token d'identification
   const sauce = new Sauce({//Création de l'objet
     ...sauceObject,// données transmises par le frontend (moins les deux champs supprimés)
-    userId: req.auth.userId, // Vérification de l'identité de l'utilisateur
+    userId: req.auth.userId, // Extraction du UserId de la requête
     imageUrl: `${req.protocol}://${req.get("host")}/images/${ // Générer le nom de l'image : protocole + nom d'hote+ nom de fichier
       req.file.filename
     }`,
@@ -34,9 +34,9 @@ exports.modifySauce = (req, res, next) => {
         res.status(401).json({ message: "Not authorized" });//Code erreur 401 : utilisateur non authentifié 
       } else {
         const sauceObject = { ...req.body };//Copie des champs du corps de la requête
-        delete sauceObject._id;//Enlever le champs id du corp de la requête renvoyé par le frontend = Générer automatiquement par MongoDB
+        delete sauceObject._id;//Enlever le champs id du corp de la requête renvoyé par le frontend = Utilisation du userid fournit par le token d'identification
         delete sauceObject._userId;//Enlever le champs userId du corp de la requête renvoyé par le frontend = Générer automatiquement par MongoDB
-        if (req.file && req.file.filename) { // Si déja une image
+        if (req.file && req.file.filename) { // Si contient une image
           sauceObject.imageUrl = `${req.protocol}://${req.get("host")}/images/${ //Ajout de la nouvelle image
             req.file.filename
           }`;
@@ -73,8 +73,8 @@ exports.likeDislike= (req, res, next) => {
     .then((sauce) => {
     const userId = req.auth.userId // Constante égale au userid fourni par la BD
     const likeAction = req.body.like // Constante égale aux actions pour liker ou disliker transmis par la requête HTTP 
-    const userLikeIndex = sauce.usersLiked.findIndex(id => id === userId) // Constant égale à la vérification de like pour un utilisateur (userId) donné
-    const userDislikeIndex = sauce.usersDisliked.findIndex(id => id === userId) // Constant égale à la vérification de dislike pour un utilisateur (userId) donné
+    const userLikeIndex = sauce.usersLiked.findIndex(id => id === userId) // Constante égale à la vérification de like pour un utilisateur (userId) donné
+    const userDislikeIndex = sauce.usersDisliked.findIndex(id => id === userId) // Constante égale à la vérification de dislike pour un utilisateur (userId) donné
     if(likeAction==-1 && userDislikeIndex < 0){ //1a) Si action souhaitéé "dislike" et aucun dislike enregistré pour cet utilisateur (userId)
         sauce.usersDisliked.push(userId)//1b) Alors on incrémente le dislike qui sera associé à la valeur du userId de l'utilisateur
         sauce.dislikes ++
@@ -126,7 +126,7 @@ exports.deleteSauce = (req, res, next) => {
 //Exportation de la fonction pour récupérer un seul objet par son id
 exports.getOneSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id }) // Méthode mongoose findOne pour récupérer la sauce avec id fourni depuis BD
-    .then((sauce) => res.status(200).json(sauce))// Envoi réponse code 200 ok , et renvoi de la sauce reçues par BD
+    .then((sauce) => res.status(200).json(sauce))// Envoi réponse code 200 ok , et renvoi de l'objet sauce reçues par BD
     .catch((error) => res.status(404).json({ error }));// Code 404 : Page web introuvable, indisponible ou n'existe pas
 };
 //Exportation de la fonction pour récupérer toutes les sauces
