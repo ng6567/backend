@@ -14,4 +14,4 @@ It should contain the following :
 
 MONGODB_USER=Openclassrooms
 MONGODB_PWD=6ArPOqq2yPBobd9P
-JWT_SECRET=<"Your own secret">
+JWT_SECRET=<Your own secret>
